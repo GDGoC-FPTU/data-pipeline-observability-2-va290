@@ -1,0 +1,91 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: ETL Functional
+      id: etl-functional
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: ETL Functional
+        setup-command: pip install pandas pytest
+        command: python -m pytest tests/test_autograder.py::TestETLFunctional -v
+        timeout: 10
+        max-score: 20
+    - name: ETL Validation
+      id: etl-validation
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: ETL Validation
+        setup-command: ''
+        command: python -m pytest tests/test_autograder.py::TestETLValidation -v
+        timeout: 10
+        max-score: 10
+    - name: Logging
+      id: logging
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Logging
+        setup-command: ''
+        command: python -m pytest tests/test_autograder.py::TestLogging -v
+        timeout: 10
+        max-score: 10
+    - name: Timestamp
+      id: timestamp
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Timestamp
+        setup-command: ''
+        command: python -m pytest tests/test_autograder.py::TestTimestamp -v
+        timeout: 10
+        max-score: 10
+    - name: Report Completion
+      id: report-completion
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Report Completion
+        setup-command: ''
+        command: python -m pytest tests/test_autograder.py::TestReportExists -v
+        timeout: 10
+        max-score: 10
+    - name: Critical Thinking
+      id: critical-thinking
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Critical Thinking
+        setup-command: ''
+        command: python -m pytest tests/test_autograder.py::TestReportAnalysis -v
+        timeout: 10
+        max-score: 10
+    - name: ETL Transform
+      id: etl-transform
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: ETL Transform
+        setup-command: ''
+        command: python -m pytest tests/test_autograder.py::TestETLTransformation
+          -v
+        timeout: 10
+        max-score: 20
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        ETL-FUNCTIONAL_RESULTS: "${{steps.etl-functional.outputs.result}}"
+        ETL-VALIDATION_RESULTS: "${{steps.etl-validation.outputs.result}}"
+        LOGGING_RESULTS: "${{steps.logging.outputs.result}}"
+        TIMESTAMP_RESULTS: "${{steps.timestamp.outputs.result}}"
+        REPORT-COMPLETION_RESULTS: "${{steps.report-completion.outputs.result}}"
+        CRITICAL-THINKING_RESULTS: "${{steps.critical-thinking.outputs.result}}"
+        ETL-TRANSFORM_RESULTS: "${{steps.etl-transform.outputs.result}}"
+      with:
+        runners: etl-functional,etl-validation,logging,timestamp,report-completion,critical-thinking,etl-transform
