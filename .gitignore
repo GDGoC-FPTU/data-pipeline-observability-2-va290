@@ -3,3 +3,7 @@ venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Du lieu sinh tu dong cho pipeline song song (tai tao bang generate_data_lake.py)
+data_lake/
+processed_lake.csv
